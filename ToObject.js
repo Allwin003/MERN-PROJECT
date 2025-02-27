@@ -1,5 +1,5 @@
 'use strict';
 
-// http://262.ecma-international.org/5.1/#sec-9.9
+// https://262.ecma-international.org/6.0/#sec-toobject
 
 module.exports = require('es-object-atoms/ToObject');

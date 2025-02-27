@@ -1,34 +1,48 @@
 'use strict';
 
-var ToPrimitive = require('./ToPrimitive');
+var GetIntrinsic = require('get-intrinsic');
+
+var $TypeError = require('es-errors/type');
+var $Number = GetIntrinsic('%Number%');
+var $RegExp = GetIntrinsic('%RegExp%');
+var $parseInteger = GetIntrinsic('%parseInt%');
 
 var callBound = require('call-bound');
+var regexTester = require('safe-regex-test');
+var isPrimitive = require('../helpers/isPrimitive');
 
-var $replace = callBound('String.prototype.replace');
+var $strSlice = callBound('String.prototype.slice');
+var isBinary = regexTester(/^0b[01]+$/i);
+var isOctal = regexTester(/^0o[0-7]+$/i);
+var isInvalidHexLiteral = regexTester(/^[-+]0x[0-9a-f]+$/i);
+var nonWS = ['\u0085', '\u200b', '\ufffe'].join('');
+var nonWSregex = new $RegExp('[' + nonWS + ']', 'g');
+var hasNonWS = regexTester(nonWSregex);
 
-var safeRegexTester = require('safe-regex-test');
+var $trim = require('string.prototype.trim');
 
-var isNonDecimal = safeRegexTester(/^0[ob]|^[+-]0x/);
+var ToPrimitive = require('./ToPrimitive');
 
-var $Number = Number;
+// https://262.ecma-international.org/6.0/#sec-tonumber
 
-// http://262.ecma-international.org/5.1/#sec-9.3
-
-module.exports = function ToNumber(value) {
-	var prim = ToPrimitive(value, $Number);
-	if (typeof prim !== 'string') {
-		return $Number(prim);
+module.exports = function ToNumber(argument) {
+	var value = isPrimitive(argument) ? argument : ToPrimitive(argument, $Number);
+	if (typeof value === 'symbol') {
+		throw new $TypeError('Cannot convert a Symbol value to a number');
 	}
+	if (typeof value === 'string') {
+		if (isBinary(value)) {
+			return ToNumber($parseInteger($strSlice(value, 2), 2));
+		} else if (isOctal(value)) {
+			return ToNumber($parseInteger($strSlice(value, 2), 8));
+		} else if (hasNonWS(value) || isInvalidHexLiteral(value)) {
+			return NaN;
+		}
+		var trimmed = $trim(value);
+		if (trimmed !== value) {
+			return ToNumber(trimmed);
+		}
 
-	var trimmed = $replace(
-		prim,
-		// eslint-disable-next-line no-control-regex
-		/^[ \t\x0b\f\xa0\ufeff\n\r\u2028\u2029\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\u0085]+|[ \t\x0b\f\xa0\ufeff\n\r\u2028\u2029\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\u0085]+$/g,
-		''
-	);
-	if (isNonDecimal(trimmed)) {
-		return NaN;
 	}
-
-	return +trimmed;
+	return +value;
 };

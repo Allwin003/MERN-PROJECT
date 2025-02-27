@@ -3,10 +3,13 @@
 var GetIntrinsic = require('get-intrinsic');
 
 var $String = GetIntrinsic('%String%');
+var $TypeError = require('es-errors/type');
 
-// http://262.ecma-international.org/5.1/#sec-9.8
+// https://262.ecma-international.org/6.0/#sec-tostring
 
-module.exports = function ToString(value) {
-	return $String(value);
+module.exports = function ToString(argument) {
+	if (typeof argument === 'symbol') {
+		throw new $TypeError('Cannot convert a Symbol value to a string');
+	}
+	return $String(argument);
 };
-
