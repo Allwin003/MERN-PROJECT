@@ -6,7 +6,7 @@ var Type = require('./Type');
 
 var isObject = require('../helpers/isObject');
 
-// https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison
+// https://262.ecma-international.org/5.1/#sec-11.9.3
 
 module.exports = function AbstractEqualityComparison(x, y) {
 	if (Type(x) === Type(y)) {
@@ -27,10 +27,10 @@ module.exports = function AbstractEqualityComparison(x, y) {
 	if (typeof y === 'boolean') {
 		return AbstractEqualityComparison(x, ToNumber(y));
 	}
-	if ((typeof x === 'string' || typeof x === 'number' || typeof x === 'symbol') && isObject(y)) {
+	if ((typeof x === 'string' || typeof x === 'number') && isObject(y)) {
 		return AbstractEqualityComparison(x, ToPrimitive(y));
 	}
-	if (isObject(x) && (typeof y === 'string' || typeof y === 'number' || typeof y === 'symbol')) {
+	if (isObject(x) && (typeof y === 'string' || typeof y === 'number')) {
 		return AbstractEqualityComparison(ToPrimitive(x), y);
 	}
 	return false;

@@ -5,9 +5,9 @@ var $TypeError = require('es-errors/type');
 var IsAccessorDescriptor = require('./IsAccessorDescriptor');
 var IsDataDescriptor = require('./IsDataDescriptor');
 
-var isPropertyDescriptor = require('../helpers/records/property-descriptor');
+var isPropertyDescriptor = require('./IsPropertyDescriptor');
 
-// https://262.ecma-international.org/6.0/#sec-isgenericdescriptor
+// https://262.ecma-international.org/5.1/#sec-8.10.3
 
 module.exports = function IsGenericDescriptor(Desc) {
 	if (typeof Desc === 'undefined') {
