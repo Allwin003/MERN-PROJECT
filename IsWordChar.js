@@ -2,22 +2,24 @@
 
 var $TypeError = require('es-errors/type');
 
+var callBound = require('call-bound');
+
+var $indexOf = callBound('String.prototype.indexOf');
+
 var IsArray = require('./IsArray');
 var IsInteger = require('./IsInteger');
+var WordCharacters = require('./WordCharacters');
 
 var every = require('../helpers/every');
-var regexTester = require('safe-regex-test');
 
 var isChar = function isChar(c) {
-	return typeof c === 'string' && c.length === 1;
+	return typeof c === 'string';
 };
 
-var isWordCharacter = regexTester(/^[a-zA-Z0-9_]$/);
-
-// https://262.ecma-international.org/6.0/#sec-runtime-semantics-iswordchar-abstract-operation
+// https://262.ecma-international.org/8.0/#sec-runtime-semantics-iswordchar-abstract-operation
 
 // note: prior to ES2023, this AO erroneously omitted the latter of its arguments.
-module.exports = function IsWordChar(e, InputLength, Input) {
+module.exports = function IsWordChar(e, InputLength, Input, IgnoreCase, Unicode) {
 	if (!IsInteger(e)) {
 		throw new $TypeError('Assertion failed: `e` must be an integer');
 	}
@@ -27,11 +29,17 @@ module.exports = function IsWordChar(e, InputLength, Input) {
 	if (!IsArray(Input) || !every(Input, isChar)) {
 		throw new $TypeError('Assertion failed: `Input` must be a List of characters');
 	}
+	if (typeof IgnoreCase !== 'boolean' || typeof Unicode !== 'boolean') {
+		throw new $TypeError('Assertion failed: `IgnoreCase` and `Unicode` must be booleans');
+	}
+
 	if (e === -1 || e === InputLength) {
 		return false; // step 1
 	}
 
 	var c = Input[e]; // step 2
 
-	return isWordCharacter(c); // steps 3-4
+	var wordChars = WordCharacters(IgnoreCase, Unicode);
+
+	return $indexOf(wordChars, c) > -1; // steps 3-4
 };
