@@ -3,23 +3,36 @@
 var $TypeError = require('es-errors/type');
 
 var callBound = require('call-bound');
+var hasOwn = require('hasown');
 
 var $charCodeAt = callBound('String.prototype.charCodeAt');
 var $toUpperCase = callBound('String.prototype.toUpperCase');
 
-// https://262.ecma-international.org/5.1/#sec-15.10.2.8
+var caseFolding = require('../helpers/caseFolding.json');
 
-module.exports = function Canonicalize(ch, IgnoreCase) {
-	if (typeof ch !== 'string' || ch.length !== 1) {
+// https://262.ecma-international.org/6.0/#sec-runtime-semantics-canonicalize-ch
+
+module.exports = function Canonicalize(ch, IgnoreCase, Unicode) {
+	if (typeof ch !== 'string') {
 		throw new $TypeError('Assertion failed: `ch` must be a character');
 	}
 
-	if (typeof IgnoreCase !== 'boolean') {
-		throw new $TypeError('Assertion failed: `IgnoreCase` must be a Boolean');
+	if (typeof IgnoreCase !== 'boolean' || typeof Unicode !== 'boolean') {
+		throw new $TypeError('Assertion failed: `IgnoreCase` and `Unicode` must be Booleans');
 	}
 
 	if (!IgnoreCase) {
 		return ch; // step 1
+	}
+
+	if (Unicode) { // step 2
+		if (hasOwn(caseFolding.C, ch)) {
+			return caseFolding.C[ch];
+		}
+		if (hasOwn(caseFolding.S, ch)) {
+			return caseFolding.S[ch];
+		}
+		return ch; // step 2.b
 	}
 
 	var u = $toUpperCase(ch); // step 2
