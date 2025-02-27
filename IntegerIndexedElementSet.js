@@ -16,7 +16,7 @@ var whichTypedArray = require('which-typed-array');
 
 var tableTAO = require('./tables/typed-array-objects');
 
-// https://262.ecma-international.org/6.0/#sec-integerindexedelementset
+// https://262.ecma-international.org/8.0/#sec-integerindexedelementset
 
 module.exports = function IntegerIndexedElementSet(O, index, value) {
 	if (typeof index !== 'number') {
@@ -56,7 +56,7 @@ module.exports = function IntegerIndexedElementSet(O, index, value) {
 
 	var indexedPosition = (index * elementSize) + offset; // step 14
 
-	SetValueInBuffer(buffer, indexedPosition, elementType, numValue); // step 16
+	SetValueInBuffer(buffer, indexedPosition, elementType, numValue, true, 'Unordered'); // step 16
 
 	return true; // step 17
 };

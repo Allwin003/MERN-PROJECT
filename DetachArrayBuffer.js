@@ -3,9 +3,10 @@
 var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
 
-var isArrayBuffer = require('is-array-buffer');
-
 var IsDetachedBuffer = require('./IsDetachedBuffer');
+
+var isArrayBuffer = require('is-array-buffer');
+var isSharedArrayBuffer = require('is-shared-array-buffer');
 
 var MessageChannel;
 try {
@@ -13,13 +14,13 @@ try {
 	MessageChannel = require('worker_threads').MessageChannel; // node 11.7+
 } catch (e) { /**/ }
 
-// https://262.ecma-international.org/6.0/#sec-detacharraybuffer
+// https://262.ecma-international.org/8.0/#sec-detacharraybuffer
 
 /* globals postMessage */
 
 module.exports = function DetachArrayBuffer(arrayBuffer) {
-	if (!isArrayBuffer(arrayBuffer)) {
-		throw new $TypeError('Assertion failed: `arrayBuffer` must be an Object with an [[ArrayBufferData]] internal slot');
+	if (!isArrayBuffer(arrayBuffer) || isSharedArrayBuffer(arrayBuffer)) {
+		throw new $TypeError('Assertion failed: `arrayBuffer` must be an Object with an [[ArrayBufferData]] internal slot, and not a Shared Array Buffer');
 	}
 
 	if (!IsDetachedBuffer(arrayBuffer)) { // node v21.0.0+ throws when you structuredClone a detached buffer

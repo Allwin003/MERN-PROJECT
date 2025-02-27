@@ -1,6 +1,6 @@
 'use strict';
 
-// https://262.ecma-international.org/6.0/#table-49
+// https://262.ecma-international.org/8.0/#table-49
 
 module.exports = {
 	__proto__: null,

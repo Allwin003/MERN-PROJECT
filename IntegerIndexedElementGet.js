@@ -2,11 +2,12 @@
 
 var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
-var isNegativeZero = require('math-intrinsics/isNegativeZero');
 
 var GetValueFromBuffer = require('./GetValueFromBuffer');
 var IsDetachedBuffer = require('./IsDetachedBuffer');
 var IsInteger = require('./IsInteger');
+
+var isNegativeZero = require('math-intrinsics/isNegativeZero');
 
 var typedArrayLength = require('typed-array-length');
 var typedArrayBuffer = require('typed-array-buffer');
@@ -15,7 +16,7 @@ var whichTypedArray = require('which-typed-array');
 
 var tableTAO = require('./tables/typed-array-objects');
 
-// https://262.ecma-international.org/6.0/#sec-integerindexedelementget
+// https://262.ecma-international.org/8.0/#sec-integerindexedelementget
 
 module.exports = function IntegerIndexedElementGet(O, index) {
 	if (typeof index !== 'number') {
@@ -53,5 +54,5 @@ module.exports = function IntegerIndexedElementGet(O, index) {
 
 	var indexedPosition = (index * elementSize) + offset; // step 12
 
-	return GetValueFromBuffer(buffer, indexedPosition, elementType); // step 14
+	return GetValueFromBuffer(buffer, indexedPosition, elementType, true, 'Unordered'); // step 14
 };
