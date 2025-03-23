@@ -13,7 +13,11 @@ dotenv.config({path:"./config/config.env"});
 //     methods:["POST"],
 //     credentials:true,
 // }));
-app.use(cors());
+app.use(cors({
+    origin: ["https://mern-project-ruddy-iota.vercel.app", "http://localhost:5173"], // Add all allowed frontend URLs
+    methods: ["POST", "GET"],
+    credentials: true, // Required for authentication & cookies
+}));
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}));
